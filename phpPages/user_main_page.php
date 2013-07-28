@@ -7,6 +7,7 @@
 ?>
 <html>
 	<header>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
 		<script type="text/javascript" src="../bootstrap/js/bootstrap.js"></script>
 		<link href="../bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css">	
 		<link href="../bootstrap/css/tweaks.css" rel="stylesheet" type="text/css">
@@ -84,32 +85,13 @@
     </script>
 	</header>
 	<body>
-		<div class="container">
-			<div class="navigation-bar">
-				<h3 class="muted title-css">JourneyScrapbook</h3>
-				<div class="navbar">
-					<div class="navbar-inner">
-						<div class="container">
-							<ul class="nav pull-left">
-							<li><a href="#">Home</a></li>
-							<li class="divider-vertical"> </li>
-							<li><a href="#">Upload Images</a></li>
-							<li class="divider-vertical"> </li>
-							<li><a href="#">Travel Map</a></li>
-							</ul>
-							<form class="navbar-form pull-right" action="logout.php" method="post" name="login_form">
-              					<input type="submit" class="btn" value="SignOut" />
-            	</form>
-						</div>
-					</div>
-				</div>
-			</div>
+			<?php include'header.php' ?>
      	<div id="searchPlace" style="float:right">
 				<input id="target" style= "height:30px;" type="text" placeholder="Search Your Place"/>
 			</div>
       <div class="span12" id="googleMap" style="height:600px;margin-left: 0px;">
     	</div>
-		</div>
+			<?php include 'footer.php' ?>
 	</body>
 </html>
 <?php		

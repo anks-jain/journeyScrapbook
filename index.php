@@ -10,6 +10,7 @@
 		<script src="booklet/jquery.booklet.1.1.0.min.js" type="text/javascript"></script>
 		<link href="booklet/jquery.booklet.1.1.0.css" type="text/css" rel="stylesheet" media="screen" />
 		<link rel="stylesheet" href="css/booklet.css" type="text/css" media="screen"/>		
+		<script src="cufon/cufon-yui.js" type="text/javascript"></script>
 		<script type="text/javascript" src="javascript/mybooklet.js"></script> 
 	</header>
 	<body>
@@ -26,9 +27,16 @@
 							</ul>
 							<form class="navbar-form pull-right" action="phpPages/login.php" method="post" name="login_form">
               				<input class="span2" name="email" type="text" style="height: 30px;" placeholder="Email">
-              				<input class="span2" name="password" type="password" style="height: 30px;" placeholder="Password">
-              				<input type="button" class="btn" value="SignIn" onclick="formhash(this.form, this.form.password)";/>
-            				</form>
+              				<input class="span2" id="passwordbox"  name="password" type="password" style="height: 30px;" placeholder="Password">
+              				<input type="button" class="btn" id="signinbtn" value="SignIn" onclick="formhash(this.form, this.form.password)";/>
+            	</form>
+							<script> 
+								$("#passwordbox").keyup(function(event){
+    							if(event.keyCode == 13){
+        						$("#signinbtn").click();
+   								}
+								});
+							</script>
 						</div>
 					</div>
 				</div>
