@@ -13,6 +13,7 @@
 class UploadHandler
 {
     protected $options;
+		protected $user_id;
     // PHP File Upload error message codes:
     // http://php.net/manual/en/features.file-upload.errors.php
     protected $error_messages = array(
@@ -36,6 +37,10 @@ class UploadHandler
 
     function __construct($options = null, $initialize = true, $error_messages = null) {
         $this->options = array(
+            'database'   => 'journey',
+						'host'			 => 'localhost',
+						'username'	 => 'root',
+						'password'	 => 'freebsd',
             'script_url' => $this->get_full_url().'/',
             'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/files/',
             'upload_url' => $this->get_full_url().'/files/',
@@ -169,8 +174,9 @@ class UploadHandler
     }
 
     protected function get_user_id() {
-        @session_start();
-        return session_id();
+				return $this->user_id;
+      // @session_start();
+      // return $_SESSION['user_id'];
     }
 
     protected function get_user_path() {
@@ -540,6 +546,7 @@ class UploadHandler
 
     protected function handle_form_data($file, $index) {
         // Handle form data, e.g. $_REQUEST['description'][$index]
+				$this->user_id = $_REQUEST['user_id'];
     }
 
     protected function imageflip($image, $mode) {
@@ -720,15 +727,47 @@ class UploadHandler
                 }
             } else {
                 $file->size = $file_size;
+								error_log("coming here");
                 if (!$content_range && $this->options['discard_aborted_uploads']) {
                     unlink($file_path);
                     $file->error = 'abort';
                 }
             }
+						$location = "abc";
+            $file->upload_to_db = $this->add_img($file->name,$location);
             $this->set_additional_file_properties($file);
         }
         return $file;
     }
+
+		function query($query) {  
+				$database = $this->options['database'];  
+				$host = $this->options['host'];  
+				$username = $this->options['username'];  
+				$password = $this->options['password'];  
+				$link = mysql_connect($host,$username,$password);  
+				if (!$link) {  
+					die(mysql_error());  
+				}
+				$db_selected = mysql_select_db($database);  
+				if (!$db_selected) {  
+					die(mysql_error());  
+				}  
+				$result = mysql_query($query);  
+				mysql_close($link);  
+				return $result;  
+		}	  
+
+		function add_img($whichimg,$location)  
+		{  
+		 	$add_to_db = $this->query("INSERT INTO pic_cordinates (user_id,pic_path,location) VALUES ( '".$this->user_id."','".$whichimg."','".$location."')") or die(mysql_error());  
+			return $add_to_db;  
+		}
+		function delete_img($delimg)  
+		{  
+			$delete_from_db = $this->query("DELETE FROM pic_cordinates WHERE pic_path = '$delimg'") or die(mysql_error());  
+			return $delete_from_db;  
+		}
 
     protected function readfile($file_path) {
         $file_size = $this->get_file_size($file_path);
@@ -953,6 +992,7 @@ class UploadHandler
         $file_name = $this->get_file_name_param();
         $file_path = $this->get_upload_path($file_name);
         $success = is_file($file_path) && $file_name[0] !== '.' && unlink($file_path);
+        $this->delete_img($file_name);
         if ($success) {
             foreach($this->options['image_versions'] as $version => $options) {
                 if (!empty($version)) {
