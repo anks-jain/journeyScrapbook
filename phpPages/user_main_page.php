@@ -4,6 +4,25 @@
 	sec_session_start();
 	if(login_check($mysqli) == true) {
 		$user_id = $_SESSION['user_id'];
+    $result = mysqli_query($mysqli, "SELECT * FROM image_location WHERE user_id= $user_id" );
+    if(! $result) {
+      die("SQL Error: " . mysqli_error($mysqli));
+    }
+    $pic_array = array();
+    $pic_thumb_array = array();
+    $latitude_array = array();
+		$longitude_array = array();
+    while ($row = mysqli_fetch_array($result)) {
+      $pic = "../uploader/server/php/files/".$user_id."/".$row['image_name'];
+      $pic_thumb = "../uploader/server/php/files/".$user_id."/thumbnail/".$row['image_name'];
+      array_push($latitude_array,$row['latitude']);
+			array_push($longitude_array,$row['longitude']);
+      array_push($pic_array,$pic);
+      array_push($pic_thumb_array,$pic_thumb);
+    } 
+
+    error_log($pic_array[0]);
+    $array_size = sizeof($pic_array);
 ?>
 <html>
 	<header>
@@ -12,9 +31,9 @@
 		<link href="../bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css">	
 		<link href="../bootstrap/css/tweaks.css" rel="stylesheet" type="text/css">
 		<!--<script type="text/javascript" src="validate.js"></script>-->
+
 		<script>
 			//Enabling the visual refresh which is just a visual enhancement from google
-
 			function initialize() {
   			var map = new google.maps.Map(document.getElementById('googleMap'), {
     			mapTypeId: google.maps.MapTypeId.ROADMAP,
@@ -27,50 +46,36 @@
  					zoom: 2  // by this zoom level and lat and long cordinated world map fits my Div
   			});
 			
-				// var globalMarkers = fetchMarkersFromDb(<?php echo '$userid'; ?>);
-				var globalMarkers = []; // This Array will retain markers over refresh 
+				var markers = []; // This Array will retain markers over refresh 
 																// will fetch markers from db
   			var input =(document.getElementById('target'));
   			var searchBox = new google.maps.places.SearchBox(input);
-  			var markers = [];
+  			//var markers = [];
 
-				//This Event listner will mark all the places related to search on map
-  			google.maps.event.addListener(searchBox, 'places_changed', function() {
-    			var places = searchBox.getPlaces();
-
-    			for (var i = 0, marker; marker = markers[i]; i++) {
-      			marker.setMap(null);
-    			}
-
-    			markers = [];
-    			var bounds = new google.maps.LatLngBounds();
-    			for (var i = 0, place; place = places[i]; i++) {
-      			var image = {
-        			url: place.icon,
-        			size: new google.maps.Size(71, 71),
-        			origin: new google.maps.Point(0, 0),
-        			anchor: new google.maps.Point(17, 34),
-        			scaledSize: new google.maps.Size(25, 25)
-      			};
-
-      			var marker = new google.maps.Marker({
-        			map: map,
-        			icon: image,
-        			title: place.name,
-        			position: place.geometry.location
-      			});
-
-						google.maps.event.addListener(marker, "rightclick", function(event) {
-							//use this event listner to right click on markers to upload pics and blogs
-							alert("hello");
-						});
-
-      			markers.push(marker);
-    			}//for loop
-  			});//places_changes event listner
-
-
+        var marker, i;
+        var infowindowsarray = [];
+        i = 0;
+        <?php 
+					for($i = 0; $i < $array_size;$i++) {
+						?>
+						marker =	createMarker(new google.maps.LatLng(<?php echo $latitude_array[$i]?>,<?php echo $longitude_array[$i] ?>),"<?php echo $i; ?>",map);
+				<?php
+          }
+        ?>
 			}//initiliaze function
+
+			function createMarker(pos, t, map) {
+    		var marker = new google.maps.Marker({       
+      			position: pos, 
+      			map: map,  // google.maps.Map 
+      			index: t      
+  			}); 
+    		google.maps.event.addListener(marker, 'click', function() { 
+					$('#imageModal').modal();
+       		//alert("I am marker " + marker.index); 
+    		}); 
+    		return marker;  
+			}
 
 			//asyncronously loading google map
 			function loadScript() {
@@ -91,6 +96,42 @@
 			</div>
       <div class="span12" id="googleMap" style="height:600px;margin-left: 0px;">
     	</div>
+			<div class="modal fade" id="imageModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<input type="hidden" id="pic_id"/>
+          <h4 class="modal-title">Modal title</h4>
+        </div>
+        <div class="modal-body">
+					<div id="this-carousel-id" class="carousel slide"><!-- class of slide for animation -->
+  					<div class="carousel-inner">
+    					<div class="item active">
+      					<img src="http://placehold.it/1200x480" alt="" />
+      					<div class="carousel-caption">
+        					<p>abc</p>
+      					</div>
+    					</div>
+    					<div class="item">
+      					<img src="http://placehold.it/1200x480" alt="" />
+      					<div class="carousel-caption">
+        					<p>c</p>
+      					</div>
+    					</div>
+  					</div><!-- /.carousel-inner -->
+  					<!--  Next and Previous controls below
+        		href values must reference the id for this carousel -->
+    				<a class="carousel-control left" href="#this-carousel-id" data-slide="prev">&lsaquo;</a>
+    				<a class="carousel-control right" href="#this-carousel-id" data-slide="next">&rsaquo;</a>
+					</div> <!-- carousel -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
 			<?php include 'footer.php' ?>
 	</body>
 </html>

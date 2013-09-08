@@ -4,15 +4,15 @@
 	sec_session_start();
 	if(login_check($mysqli) == true) {
 		$user_id = $_SESSION['user_id'];
-    $result = mysqli_query($mysqli, "SELECT * FROM pic_cordinates WHERE user_id= 1" );
+    $result = mysqli_query($mysqli, "SELECT * FROM image_location WHERE user_id= $user_id" );
 		if(! $result) {
     	die("SQL Error: " . mysqli_error($mysqli));
 		}
 		$pic_array = array();
 		$pic_thumb_array = array();
 		while ($row = mysqli_fetch_array($result)) {
-			$pic = "../uploader/server/php/files/".$user_id."/".$row['pic_path'];
-			$pic_thumb = "../uploader/server/php/files/".$user_id."/thumbnail/".$row['pic_path'];
+			$pic = "../uploader/server/php/files/".$user_id."/".$row['image_name'];
+			$pic_thumb = "../uploader/server/php/files/".$user_id."/thumbnail/".$row['image_name'];
 			array_push($pic_array,$pic);
 			array_push($pic_thumb_array,$pic_thumb);
 		}

@@ -717,6 +717,17 @@ class UploadHandler
                     $append_file ? FILE_APPEND : 0
                 );
             }
+
+						//calculate the location via exif before scaling the image as scaling loses exif information
+            $loc = $this->readGPSinfoEXIF($file_path);
+            if(is_numeric($loc)) {
+							$latitude = $loc[0];
+							$longitude= $loc[1];
+						} else {
+							$latitude = 0;
+							$longitude= 0;
+						}
+						
             $file_size = $this->get_file_size($file_path, $append_file);
             if ($file_size === $file->size) {
                 $file->url = $this->get_download_url($file->name);
@@ -727,19 +738,49 @@ class UploadHandler
                 }
             } else {
                 $file->size = $file_size;
-								error_log("coming here");
                 if (!$content_range && $this->options['discard_aborted_uploads']) {
                     unlink($file_path);
                     $file->error = 'abort';
                 }
             }
-						$location = "abc";
-            $file->upload_to_db = $this->add_img($file->name,$location);
+            $file->upload_to_db = $this->add_img($file->name,$latitude,$longitude);
             $this->set_additional_file_properties($file);
         }
         return $file;
     }
 
+		function readGPSinfoEXIF($image_full_name)
+		{
+   		$exif=exif_read_data($image_full_name, 0, true);
+     	if(!$exif || $exif['GPS']['GPSLatitude'] == '') {
+      	return false;
+			} else {
+				$lat_ref = $exif['GPS']['GPSLatitudeRef']; 
+				$lat = $exif['GPS']['GPSLatitude'];
+        error_log(print_r($exif['GPS'],true));
+				list($num, $dec) = explode('/', $lat[0]);
+				$lat_s = $num / $dec;
+				list($num, $dec) = explode('/', $lat[1]);
+				$lat_m = $num / $dec;
+				list($num, $dec) = explode('/', $lat[2]);
+				$lat_v = $num / $dec;
+ 
+				$lon_ref = $exif['GPS']['GPSLongitudeRef'];
+				$lon = $exif['GPS']['GPSLongitude'];
+				list($num, $dec) = explode('/', $lon[0]);
+				$lon_s = $num / $dec;
+				list($num, $dec) = explode('/', $lon[1]);
+				$lon_m = $num / $dec;
+				list($num, $dec) = explode('/', $lon[2]);
+				$lon_v = $num / $dec;
+ 
+				$gps_int = array($lat_s + $lat_m / 60.0 + $lat_v / 3600.0, $lon_s 
+            + $lon_m / 60.0 + $lon_v / 3600.0);
+				return $gps_int;
+			}
+		}
+ 
+ 
 		function query($query) {  
 				$database = $this->options['database'];  
 				$host = $this->options['host'];  
@@ -758,9 +799,9 @@ class UploadHandler
 				return $result;  
 		}	  
 
-		function add_img($whichimg,$location)  
+		function add_img($whichimg,$latitude,$longitude)  
 		{  
-		 	$add_to_db = $this->query("INSERT INTO pic_cordinates (user_id,pic_path,location) VALUES ( '".$this->user_id."','".$whichimg."','".$location."')") or die(mysql_error());  
+		 	$add_to_db = $this->query("INSERT INTO image_location (user_id,image_name,latitude,longitude) VALUES ( '".$this->user_id."','".$whichimg."','".$latitude."','".$longitude."')") or die(mysql_error());  
 			return $add_to_db;  
 		}
 		function delete_img($delimg)  
