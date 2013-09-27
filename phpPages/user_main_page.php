@@ -30,108 +30,53 @@
 		<script type="text/javascript" src="../bootstrap/js/bootstrap.js"></script>
 		<link href="../bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css">	
 		<link href="../bootstrap/css/tweaks.css" rel="stylesheet" type="text/css">
+		<script src="../booklet/jquery.easing.1.3.js" type="text/javascript"></script>
+		<script src="../booklet/jquery.booklet.1.1.0.min.js" type="text/javascript"></script>
+		<link href="../booklet/jquery.booklet.1.1.0.css" type="text/css" rel="stylesheet" media="screen" />
+		<link rel="stylesheet" href="../css/booklet.css" type="text/css" media="screen"/>		
+		<script src="../cufon/cufon-yui.js" type="text/javascript"></script>
+		<script type="text/javascript" src="../javascript/mybooklet.js"></script> 
 		<!--<script type="text/javascript" src="validate.js"></script>-->
-
-		<script>
-			//Enabling the visual refresh which is just a visual enhancement from google
-			function initialize() {
-  			var map = new google.maps.Map(document.getElementById('googleMap'), {
-    			mapTypeId: google.maps.MapTypeId.ROADMAP,
-   				center: new google.maps.LatLng(40.6986, 3.2949),   //latitude and longitude cordinates for spain
-       	 	zoomControl: true,
-					zoomControlOptions: {
-      			style: google.maps.ZoomControlStyle.SMALL
-    			},
-					streetViewControl: false,
- 					zoom: 2  // by this zoom level and lat and long cordinated world map fits my Div
-  			});
-			
-				var markers = []; // This Array will retain markers over refresh 
-																// will fetch markers from db
-  			var input =(document.getElementById('target'));
-  			var searchBox = new google.maps.places.SearchBox(input);
-  			//var markers = [];
-
-        var marker, i;
-        var infowindowsarray = [];
-        i = 0;
-        <?php 
-					for($i = 0; $i < $array_size;$i++) {
-						?>
-						marker =	createMarker(new google.maps.LatLng(<?php echo $latitude_array[$i]?>,<?php echo $longitude_array[$i] ?>),"<?php echo $i; ?>",map);
-				<?php
-          }
-        ?>
-			}//initiliaze function
-
-			function createMarker(pos, t, map) {
-    		var marker = new google.maps.Marker({       
-      			position: pos, 
-      			map: map,  // google.maps.Map 
-      			index: t      
-  			}); 
-    		google.maps.event.addListener(marker, 'click', function() { 
-					$('#imageModal').modal();
-       		//alert("I am marker " + marker.index); 
-    		}); 
-    		return marker;  
-			}
-
-			//asyncronously loading google map
-			function loadScript() {
-  			var script = document.createElement('script');
-  			script.type = 'text/javascript';
-  			script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBqOSpe5NX2eude-qj1A0LMgyKs6-xWwys&' +
-								 	   'v=3.exp&sensor=false&libraries=places&' +
-      					     'callback=initialize';
-  			document.body.appendChild(script);
-			}	
-			window.onload = loadScript;
-    </script>
 	</header>
 	<body>
 			<?php include'header.php' ?>
-     	<div id="searchPlace" style="float:right">
-				<input id="target" style= "height:30px;" type="text" placeholder="Search Your Place"/>
-			</div>
-      <div class="span12" id="googleMap" style="height:600px;margin-left: 0px;">
-    	</div>
-			<div class="modal fade" id="imageModal">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<input type="hidden" id="pic_id"/>
-          <h4 class="modal-title">Modal title</h4>
-        </div>
-        <div class="modal-body">
-					<div id="this-carousel-id" class="carousel slide"><!-- class of slide for animation -->
-  					<div class="carousel-inner">
-    					<div class="item active">
-      					<img src="http://placehold.it/1200x480" alt="" />
-      					<div class="carousel-caption">
-        					<p>abc</p>
-      					</div>
-    					</div>
-    					<div class="item">
-      					<img src="http://placehold.it/1200x480" alt="" />
-      					<div class="carousel-caption">
-        					<p>c</p>
-      					</div>
-    					</div>
-  					</div><!-- /.carousel-inner -->
-  					<!--  Next and Previous controls below
-        		href values must reference the id for this carousel -->
-    				<a class="carousel-control left" href="#this-carousel-id" data-slide="prev">&lsaquo;</a>
-    				<a class="carousel-control right" href="#this-carousel-id" data-slide="next">&rsaquo;</a>
-					</div> <!-- carousel -->
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-  </div><!-- /.modal -->
+			<div class="book_wrapper">
+				<a id="next_page_button"></a>
+				<a id="prev_page_button"></a>
+				<div id="loading" class="loading">Loading pages...</div>
+					<div id="mybook" style="display:none;">
+						<div class="b-load">
+							<div>
+								<img src="../images/image_upload.png" alt=""/>
+								<h1>Upload Images and Folders</h1>
+								<p>Upload your pics and wait for the magic. Yes that is it. 
+						   		   Just provide location where image is cicked and that is all we 
+						   		   need to give make your travelling memories everlasting.</p>
+						   		<br/><br/>
+								<a href="http://tympanus.net/codrops/2010/10/07/slider-gallery/" target="_blank" class="article">Article</a>
+								<a href="http://tympanus.net/Tutorials/SliderGallery/" target="_blank" class="demo">Demo</a>
+							</div>
+							<div>
+								<img src="../images/map_pins.png" alt="" />
+								<h1>View Your Travel Map</h1>
+								<p>View whats the path your journey is taking. View the map to 
+						   		   know the location you have travelled and what more you need to cover.</p>
+								<br/><br/><br/>
+								<a href="http://tympanus.net/codrops/2010/11/14/animated-portfolio-gallery/" target="_blank" class="article">Article</a>
+								<a href="http://tympanus.net/Tutorials/AnimatedPortfolioGallery/" target="_blank" class="demo">Demo</a>
+							</div>
+							<div>
+								<img src="../images/pin_pics.png" alt="" />
+								<h1>Pin Images To Locations</h1>
+								<p>We pin your images to your travel map. Just click on the location
+						   		   pin and get your album for that location.</p>
+								<br/><br/><br/>
+								<a href="http://tympanus.net/codrops/2010/10/12/annotation-overlay-effect/" target="_blank" class="article">Article</a>
+								<a href="http://tympanus.net/Tutorials/AnnotationOverlayEffect/" target="_blank" class="demo">Demo</a>
+							</div>
+						</div>
+					</div>
+				</div>
 			<?php include 'footer.php' ?>
 	</body>
 </html>

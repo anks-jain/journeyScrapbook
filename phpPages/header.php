@@ -9,7 +9,7 @@
 							<li class="divider-vertical"> </li>
 							<li><a href="user_upload_pic.php">Upload Images</a></li>
 							<li class="divider-vertical"> </li>
-							<li><a href="#">Travel Map</a></li>
+							<li><a href="travel_map.php">Travel Map</a></li>
 							</ul>
 							<form class="navbar-form pull-right" action="logout.php" method="post" name="login_form">
               					<input type="submit" class="btn" value="SignOut" />
